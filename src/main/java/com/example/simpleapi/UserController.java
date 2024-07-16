@@ -1,6 +1,8 @@
 package com.example.simpleapi;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityManager;
@@ -8,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -66,6 +69,22 @@ public class UserController {
         String sql = "SELECT u FROM User u WHERE u.atendido = true";
         Query query = entityManager.createQuery(sql, User.class);
         return query.getResultList();
+    }
+
+
+    // fazer funcao para mudar o statuS aqui
+    @PutMapping("/MudarAtendido/{id}")
+    public ResponseEntity<String> toggleAtendido(@PathVariable Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setAtendido(!user.isAtendido());
+            userRepository.save(user);
+            return ResponseEntity.ok("Status de atendimento atualizado com sucesso!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+        }
     }
 
 }
