@@ -3,6 +3,10 @@ package com.example.simpleapi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+
 import java.util.List;
 
 @RestController
@@ -49,6 +53,18 @@ public class UserController {
         userRepository.save(user);
         
         return "Dados adicionados com sucesso!";
+    }
+
+    //voltar apenas os que tem o atendido true
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @GetMapping("/atendidos")
+    public List<User> getUsuariosAtendidos() {
+        String sql = "SELECT u FROM User u WHERE u.atendido = true";
+        Query query = entityManager.createQuery(sql, User.class);
+        return query.getResultList();
     }
 
 }
