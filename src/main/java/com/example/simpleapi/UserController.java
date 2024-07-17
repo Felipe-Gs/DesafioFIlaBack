@@ -52,11 +52,11 @@ public class UserController {
     }
 
     @PostMapping("/addDados")
-    public String addUserData(@RequestBody User user) {
+    public boolean addUserData(@RequestBody User user) {
         // Salvando no banco de dados
         userRepository.save(user);
         
-        return "Dados adicionados com sucesso!";
+        return true;
     }
 
     //voltar apenas os que tem o atendido true
@@ -69,6 +69,21 @@ public class UserController {
         String sql = "SELECT u FROM User u WHERE u.atendido = true";
         Query query = entityManager.createQuery(sql, User.class);
         return query.getResultList();
+    }
+
+    @GetMapping("/naoAtendidos")
+    public List<User> getUsuariosnaoAtendidos() {
+        String sql = "SELECT u FROM User u WHERE u.atendido = false";
+        Query query = entityManager.createQuery(sql, User.class);
+        return query.getResultList();
+    }
+
+    @GetMapping("/apagarNulos")
+    public  List<User>  getUsuariosapaguarNulos() {
+        String sql = "DELETE FROM User u WHERE u.nome = '' OR u.nome IS NULL";
+        Query query = entityManager.createQuery(sql, User.class);
+        query.executeUpdate();
+        return entityManager.createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
 
